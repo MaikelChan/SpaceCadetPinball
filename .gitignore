@@ -279,6 +279,9 @@ ReleaseWinXp/
 
 # 3DS
 build/
+romfs/*
 *.elf
 *.3dsx
+*.cia
 *.smdh
+*.bnr

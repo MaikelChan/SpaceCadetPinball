@@ -6,6 +6,10 @@ ifeq ($(strip $(DEVKITARM)),)
 $(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
 endif
 
+ifeq ($(strip $(TOOLDIR)),)
+export TOOLDIR=$(DEVKITPRO)/tools/bin
+endif
+
 TOPDIR ?= $(CURDIR)
 include $(DEVKITARM)/3ds_rules
 
@@ -43,7 +47,20 @@ GFXBUILD	:=	$(BUILD)
 APP_TITLE	:= 3D Pinball - Space Cadet
 APP_DESCRIPTION := 3D Pinball - Space Cadet for Nintendo 3DS
 APP_AUTHOR	:= k4zmu2a / MaikelChan
-ICON		:= Icon.png
+
+APP_PRODUCT_CODE	:=	CTR-P-PINBALL
+APP_UNIQUE_ID		:=	0x21A39
+APP_VERSION_MAJOR	:=	0
+APP_VERSION_MINOR	:=	0
+APP_VERSION_MICRO	:=	4
+
+RSF					:=	$(TOPDIR)/ctr/template.rsf
+APP_LOGO			:=	$(TOPDIR)/ctr/hb_logo.bin
+APP_ICON			:=	$(TOPDIR)/ctr/icon.png
+
+BANNER_IMAGE_FILE	:=	$(TOPDIR)/ctr/banner.png
+BANNER_AUDIO_FILE	:=	$(TOPDIR)/ctr/audio_silent.wav
+
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -139,7 +156,7 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 
-export _3DSXDEPS	:=	$(if $(NO_SMDH),,$(OUTPUT).smdh)
+#export _3DSXDEPS	:=	$(if $(NO_SMDH),,$(OUTPUT).smdh)
 
 ifeq ($(strip $(ICON)),)
 	icons := $(wildcard *.png)
@@ -184,7 +201,7 @@ endif
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf $(GFXBUILD)
+	@rm -fr $(BUILD) $(TARGET).3dsx $(TARGET).cia $(OUTPUT).smdh $(TARGET).bnr $(TARGET).elf $(GFXBUILD)
 
 #---------------------------------------------------------------------------------
 $(GFXBUILD)/%.t3x	$(BUILD)/%.h	:	%.t3s
@@ -195,14 +212,58 @@ $(GFXBUILD)/%.t3x	$(BUILD)/%.h	:	%.t3s
 #---------------------------------------------------------------------------------
 else
 
+BANNER_IMAGE_ARG			:=	-i $(BANNER_IMAGE_FILE)
+BANNER_AUDIO_ARG			:=	-a $(BANNER_AUDIO_FILE)
+
+COMMON_MAKEROM_PARAMS		:= -rsf $(RSF) -target t -exefslogo -elf $(OUTPUT).elf -icon $(OUTPUT).smdh \
+-banner $(OUTPUT).bnr -DAPP_TITLE="$(APP_TITLE)" -DAPP_PRODUCT_CODE="$(APP_PRODUCT_CODE)" \
+-DAPP_UNIQUE_ID="$(APP_UNIQUE_ID)" -DAPP_SYSTEM_MODE="64MB" -DAPP_SYSTEM_MODE_EXT="Legacy" \
+-major "$(APP_VERSION_MAJOR)" -minor "$(APP_VERSION_MINOR)" -micro "$(APP_VERSION_MICRO)"
+
+ifneq ($(APP_LOGO),)
+	APP_LOGO_ID				=	Homebrew
+	COMMON_MAKEROM_PARAMS	+=	-DAPP_LOGO_ID="$(APP_LOGO_ID)" -logo $(APP_LOGO)
+else
+	APP_LOGO_ID				=	Nintendo
+	COMMON_MAKEROM_PARAMS	+=	-DAPP_LOGO_ID="$(APP_LOGO_ID)"
+endif
+
+ifneq ($(ROMFS),)
+	APP_ROMFS				:=	$(TOPDIR)/$(ROMFS)
+	COMMON_MAKEROM_PARAMS	+=	-DAPP_ROMFS="$(APP_ROMFS)"
+	CXXFLAGS				+= -D_ROMFS
+endif
+
+ifeq ($(OS),Windows_NT)
+	MAKEROM		=	makerom.exe
+	BANNERTOOL	=	bannertool.exe
+else
+	MAKEROM		=	$(TOOLDIR)/makerom
+	BANNERTOOL	=	$(TOOLDIR)/bannertool
+endif
+
 #---------------------------------------------------------------------------------
 # main targets
 #---------------------------------------------------------------------------------
-$(OUTPUT).3dsx	:	$(OUTPUT).elf $(_3DSXDEPS)
+.PHONY : all
+
+all				:	$(OUTPUT).3dsx $(OUTPUT).cia
+
+$(OUTPUT).3dsx	:	$(OUTPUT).elf $(OUTPUT).smdh
 
 $(OFILES_SOURCES) : $(HFILES)
 
 $(OUTPUT).elf	:	$(OFILES)
+
+$(OUTPUT).cia		:	$(OUTPUT).elf $(OUTPUT).bnr $(OUTPUT).smdh
+	@$(MAKEROM) -f cia -o $(OUTPUT).cia -DAPP_ENCRYPTED=false $(COMMON_MAKEROM_PARAMS)
+	@echo "built ... spacecadetpinball.cia"
+
+$(OUTPUT).bnr : $(BANNER_IMAGE_FILE) $(BANNER_AUDIO_FILE)
+	@$(BANNERTOOL) makebanner $(BANNER_IMAGE_ARG) $(BANNER_AUDIO_ARG) -o $(OUTPUT).bnr > /dev/null
+
+$(OUTPUT).smdh : $(APP_ICON)
+	@$(BANNERTOOL) makesmdh -s "$(APP_TITLE)" -l "$(APP_DESCRIPTION)" -p "$(APP_AUTHOR)" -i $(APP_ICON) -o $(OUTPUT).smdh > /dev/null
 
 #---------------------------------------------------------------------------------
 # you need a rule like this for each extension you use as binary data

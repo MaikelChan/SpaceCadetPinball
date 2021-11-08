@@ -39,13 +39,18 @@ int winmain::WinMain(LPCSTR lpCmdLine)
 {
 	std::set_new_handler(memalloc_failure);
 
+	osSetSpeedupEnable(true);
+
 	// Initialize graphics
 	gfxInitDefault();
 
 	// Set the base path for PINBALL.DAT
-
-	BasePath = (char *)"SpaceCadetPinball/";
-
+#if _ROMFS
+	romfsInit();
+	BasePath = (char *)"romfs:/";
+#else
+	BasePath = (char *)"sdmc:/3ds/SpaceCadetPinball/";
+#endif
 	pinball::quickFlag = 0; // strstr(lpCmdLine, "-quick") != nullptr;
 	DatFileName = options::get_string("Pinball Data", pinball::get_rc_string(168, 0));
 
@@ -206,6 +211,10 @@ int winmain::WinMain(LPCSTR lpCmdLine)
 	linearFree(renderTextureData);
 	n3ds_graphics::Dispose();
 	gfxExit();
+
+#if _ROMFS
+	romfsExit();
+#endif
 
 	printf("Finished uninitializing.");
 
