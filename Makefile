@@ -58,7 +58,7 @@ APP_LOGO			:=	$(TOPDIR)/ctr/hb_logo.bin
 APP_ICON			:=	$(TOPDIR)/ctr/icon.png
 
 BANNER_IMAGE_FILE	:=	$(TOPDIR)/ctr/banner.png
-BANNER_AUDIO_FILE	:=	$(TOPDIR)/ctr/audio_silent.wav
+BANNER_AUDIO_FILE	:=	$(TOPDIR)/ctr/banner.wav
 
 #---------------------------------------------------------------------------------
 # Build options
