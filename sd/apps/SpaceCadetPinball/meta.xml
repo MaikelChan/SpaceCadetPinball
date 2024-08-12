@@ -8,9 +8,25 @@
 	<long_description>Port of the 3D Pinball - Space Cadet that came bundled with Windows from Windows 95 until Windows XP.
 
 Wii Remote Controls:
+  2: Launch the ball
+  A: Move the left paddle
+  1: Move the right paddle
+  DPAD Left, Right, Up Bump table
+  -: Start a new game
+  +: Pause
+
+Nunchuk Controls:
   A: Launch the ball
   Z: Move the left paddle
   B: Move the right paddle
+  DPAD Left, Right, Up Bump table
+  -: Start a new game
+  +: Pause
+
+Classic Controller Controls:
+  A: Launch the ball
+  L/ZL: Move the left paddle
+  R/ZR: Move the right paddle
   DPAD Left, Right, Up Bump table
   -: Start a new game
   +: Pause

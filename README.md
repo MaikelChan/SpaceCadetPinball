@@ -80,9 +80,29 @@ After a successful build, you will get a file called `SpaceCadetPinball.dol`, wh
 
 ### Wii Remote
 ```
+2                    :  Launch the ball
+A                    :  Move the left paddle
+1                    :  Move the right paddle
+DPAD Left, Right, Up :  Bump table
+-                    :  Start a new game
++                    :  Pause
+```
+
+### Nunchuk
+```
 A                    :  Launch the ball
 Z                    :  Move the left paddle
 B                    :  Move the right paddle
+DPAD Left, Right, Up :  Bump table
+-                    :  Start a new game
++                    :  Pause
+```
+
+### Classic Controller
+```
+A                    :  Launch the ball
+L/ZL                 :  Move the left paddle
+R/ZR                 :  Move the right paddle
 DPAD Left, Right, Up :  Bump table
 -                    :  Start a new game
 +                    :  Pause
