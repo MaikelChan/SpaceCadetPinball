@@ -3,6 +3,7 @@
 uint32_t wii_input::gcButtonsDown = 0;
 uint32_t wii_input::gcButtonsUp = 0;
 #ifdef HW_RVL
+expansion_t wii_input::wiiExpansion;
 uint32_t wii_input::wiiButtonsDown = 0;
 uint32_t wii_input::wiiButtonsUp = 0;
 #endif
@@ -24,6 +25,7 @@ void wii_input::ScanPads()
 
 #ifdef HW_RVL
     WPAD_ScanPads();
+    WPAD_Expansion(0, &wiiExpansion);
     wiiButtonsDown = WPAD_ButtonsDown(0);
     wiiButtonsUp = WPAD_ButtonsUp(0);
 #endif
@@ -31,144 +33,256 @@ void wii_input::ScanPads()
 
 bool wii_input::Exit()
 {
+    bool down = (gcButtonsDown & PAD_TRIGGER_Z);
+
 #ifdef HW_RVL
-    return (wiiButtonsDown & WPAD_BUTTON_HOME) || (gcButtonsDown & PAD_TRIGGER_Z);
-#else
-    return (gcButtonsDown & PAD_TRIGGER_Z);
+    switch (wiiExpansion.type)
+    {
+        case EXP_CLASSIC: down |= (wiiButtonsDown & WPAD_CLASSIC_BUTTON_HOME); break;
+        case EXP_NUNCHUK: down |= (wiiButtonsDown & WPAD_BUTTON_HOME); break;
+        default:          down |= (wiiButtonsDown & WPAD_BUTTON_HOME);
+    };
 #endif
+
+    return down;
 }
 
 bool wii_input::Pause()
 {
+    bool down = (gcButtonsDown & PAD_BUTTON_START);
+
 #ifdef HW_RVL
-    return (wiiButtonsDown & WPAD_BUTTON_PLUS) || (gcButtonsDown & PAD_BUTTON_START);
-#else
-    return (gcButtonsDown & PAD_BUTTON_START);
+    switch (wiiExpansion.type)
+    {
+        case EXP_CLASSIC: down |= (wiiButtonsDown & WPAD_CLASSIC_BUTTON_PLUS); break;
+        case EXP_NUNCHUK: down |= (wiiButtonsDown & WPAD_BUTTON_PLUS); break;
+        default:          down |= (wiiButtonsDown & WPAD_BUTTON_PLUS);
+    };
 #endif
+
+    return down;
 }
 
 bool wii_input::NewGame()
 {
+    bool down = (gcButtonsDown & PAD_BUTTON_Y);
+
 #ifdef HW_RVL
-    return (wiiButtonsDown & WPAD_BUTTON_1) || (gcButtonsDown & PAD_BUTTON_Y);
-#else
-    return (gcButtonsDown & PAD_BUTTON_Y);
+    switch (wiiExpansion.type)
+    {
+        case EXP_CLASSIC: down |= (wiiButtonsDown & WPAD_CLASSIC_BUTTON_MINUS); break;
+        case EXP_NUNCHUK: down |= (wiiButtonsDown & (WPAD_BUTTON_1 | WPAD_BUTTON_MINUS)); break;
+        default:          down |= (wiiButtonsDown & WPAD_BUTTON_MINUS);
+    };
 #endif
+
+    return down;
 }
 
 bool wii_input::LaunchBallDown()
 {
+    bool down = (gcButtonsDown & PAD_BUTTON_A);
+
 #ifdef HW_RVL
-    return (wiiButtonsDown & WPAD_BUTTON_A) || (gcButtonsDown & PAD_BUTTON_A);
-#else
-    return (gcButtonsDown & PAD_BUTTON_A);
+    switch (wiiExpansion.type)
+    {
+        case EXP_CLASSIC: down |= (wiiButtonsDown & WPAD_CLASSIC_BUTTON_A); break;
+        case EXP_NUNCHUK: down |= (wiiButtonsDown & WPAD_BUTTON_A); break;
+        default:          down |= (wiiButtonsDown & WPAD_BUTTON_2);
+    };
 #endif
+
+    return down;
 }
 
 bool wii_input::LaunchBallUp()
 {
+    bool up = (gcButtonsUp & PAD_BUTTON_A);
+
 #ifdef HW_RVL
-    return (wiiButtonsUp & WPAD_BUTTON_A) || (gcButtonsUp & PAD_BUTTON_A);
-#else
-    return (gcButtonsUp & PAD_BUTTON_A);
+    switch (wiiExpansion.type)
+    {
+        case EXP_CLASSIC: up |= (wiiButtonsUp & WPAD_CLASSIC_BUTTON_A); break;
+        case EXP_NUNCHUK: up |= (wiiButtonsUp & WPAD_BUTTON_A); break;
+        default:          up |= (wiiButtonsUp & WPAD_BUTTON_2);
+    };
 #endif
+
+    return up;
 }
 
 bool wii_input::MoveLeftPaddleDown()
 {
+    bool down = (gcButtonsDown & PAD_TRIGGER_L);
+
 #ifdef HW_RVL
-    return (wiiButtonsDown & WPAD_NUNCHUK_BUTTON_Z) || (gcButtonsDown & PAD_TRIGGER_L);
-#else
-    return (gcButtonsDown & PAD_TRIGGER_L);
+    switch (wiiExpansion.type)
+    {
+        case EXP_CLASSIC: down |= (wiiButtonsDown & (WPAD_CLASSIC_BUTTON_FULL_L | WPAD_CLASSIC_BUTTON_ZL)); break;
+        case EXP_NUNCHUK: down |= (wiiButtonsDown & WPAD_NUNCHUK_BUTTON_Z); break;
+        default:          down |= (wiiButtonsDown & WPAD_BUTTON_A);
+    };
 #endif
+
+    return down;
 }
 
 bool wii_input::MoveLeftPaddleUp()
 {
+    bool up = (gcButtonsUp & PAD_TRIGGER_L);
+
 #ifdef HW_RVL
-    return (wiiButtonsUp & WPAD_NUNCHUK_BUTTON_Z) || (gcButtonsUp & PAD_TRIGGER_L);
-#else
-    return (gcButtonsUp & PAD_TRIGGER_L);
+    switch (wiiExpansion.type)
+    {
+        case EXP_CLASSIC: up |= (wiiButtonsUp & (WPAD_CLASSIC_BUTTON_FULL_L | WPAD_CLASSIC_BUTTON_ZL)); break;
+        case EXP_NUNCHUK: up |= (wiiButtonsUp & WPAD_NUNCHUK_BUTTON_Z); break;
+        default:          up |= (wiiButtonsUp & WPAD_BUTTON_A);
+    };
 #endif
+
+    return up;
 }
 
 bool wii_input::MoveRightPaddleDown()
 {
+    bool down = (gcButtonsDown & PAD_TRIGGER_R);
+
 #ifdef HW_RVL
-    return (wiiButtonsDown & WPAD_BUTTON_B) || (gcButtonsDown & PAD_TRIGGER_R);
-#else
-    return (gcButtonsDown & PAD_TRIGGER_R);
+    switch (wiiExpansion.type)
+    {
+        case EXP_CLASSIC: down |= (wiiButtonsDown & (WPAD_CLASSIC_BUTTON_FULL_R | WPAD_CLASSIC_BUTTON_ZR)); break;
+        case EXP_NUNCHUK: down |= (wiiButtonsDown & WPAD_BUTTON_B); break;
+        default:          down |= (wiiButtonsDown & WPAD_BUTTON_1);
+    };
 #endif
+
+    return down;
 }
 
 bool wii_input::MoveRightPaddleUp()
 {
+    bool up = (gcButtonsUp & PAD_TRIGGER_R);
+
 #ifdef HW_RVL
-    return (wiiButtonsUp & WPAD_BUTTON_B) || (gcButtonsUp & PAD_TRIGGER_R);
-#else
-    return (gcButtonsUp & PAD_TRIGGER_R);
+    switch (wiiExpansion.type)
+    {
+        case EXP_CLASSIC: up |= (wiiButtonsUp & (WPAD_CLASSIC_BUTTON_FULL_R | WPAD_CLASSIC_BUTTON_ZR)); break;
+        case EXP_NUNCHUK: up |= (wiiButtonsUp & WPAD_BUTTON_B); break;
+        default:          up |= (wiiButtonsUp & WPAD_BUTTON_1);
+    };
 #endif
+
+    return up;
 }
 
 bool wii_input::NudgeLeftDown()
 {
+    bool down = (gcButtonsDown & PAD_BUTTON_LEFT);
+
 #ifdef HW_RVL
-    return (wiiButtonsDown & WPAD_BUTTON_LEFT) || (gcButtonsDown & PAD_BUTTON_LEFT);
-#else
-    return (gcButtonsDown & PAD_BUTTON_LEFT);
+    switch (wiiExpansion.type)
+    {
+        case EXP_CLASSIC: down |= (wiiButtonsDown & WPAD_CLASSIC_BUTTON_LEFT); break;
+        case EXP_NUNCHUK: down |= (wiiButtonsDown & WPAD_BUTTON_LEFT); break;
+        default:          down |= (wiiButtonsDown & WPAD_BUTTON_UP);
+    };
 #endif
+
+    return down;
 }
 
 bool wii_input::NudgeLeftUp()
 {
+    bool up = (gcButtonsUp & PAD_BUTTON_LEFT);
+
 #ifdef HW_RVL
-    return (wiiButtonsUp & WPAD_BUTTON_LEFT) || (gcButtonsUp & PAD_BUTTON_LEFT);
-#else
-    return (gcButtonsUp & PAD_BUTTON_LEFT);
+    switch (wiiExpansion.type)
+    {
+        case EXP_CLASSIC: up |= (wiiButtonsUp & WPAD_CLASSIC_BUTTON_LEFT); break;
+        case EXP_NUNCHUK: up |= (wiiButtonsUp & WPAD_BUTTON_LEFT); break;
+        default:          up |= (wiiButtonsUp & WPAD_BUTTON_UP);
+    };
 #endif
+
+    return up;
 }
 
 bool wii_input::NudgeRightDown()
 {
+    bool down = (gcButtonsDown & PAD_BUTTON_RIGHT);
+
 #ifdef HW_RVL
-    return (wiiButtonsDown & WPAD_BUTTON_RIGHT) || (gcButtonsDown & PAD_BUTTON_RIGHT);
-#else
-    return (gcButtonsDown & PAD_BUTTON_RIGHT);
+    switch (wiiExpansion.type)
+    {
+        case EXP_CLASSIC: down |= (wiiButtonsDown & WPAD_CLASSIC_BUTTON_RIGHT); break;
+        case EXP_NUNCHUK: down |= (wiiButtonsDown & WPAD_BUTTON_RIGHT); break;
+        default:          down |= (wiiButtonsDown & WPAD_BUTTON_DOWN);
+    };
 #endif
+
+    return down;
 }
 
 bool wii_input::NudgeRightUp()
 {
+    bool up = (gcButtonsUp & PAD_BUTTON_RIGHT);
+
 #ifdef HW_RVL
-    return (wiiButtonsUp & WPAD_BUTTON_RIGHT) || (gcButtonsUp & PAD_BUTTON_RIGHT);
-#else
-    return (gcButtonsUp & PAD_BUTTON_RIGHT);
+    switch (wiiExpansion.type)
+    {
+        case EXP_CLASSIC: up |= (wiiButtonsUp & WPAD_CLASSIC_BUTTON_RIGHT); break;
+        case EXP_NUNCHUK: up |= (wiiButtonsUp & WPAD_BUTTON_RIGHT); break;
+        default:          up |= (wiiButtonsUp & WPAD_BUTTON_DOWN);
+    };
 #endif
+
+    return up;
 }
 
 bool wii_input::NudgeUpDown()
 {
+    bool down = (gcButtonsDown & PAD_BUTTON_UP);
+
 #ifdef HW_RVL
-    return (wiiButtonsDown & WPAD_BUTTON_UP) || (gcButtonsDown & PAD_BUTTON_UP);
-#else
-    return (gcButtonsDown & PAD_BUTTON_UP);
+    switch (wiiExpansion.type)
+    {
+        case EXP_CLASSIC: down |= (wiiButtonsDown & WPAD_CLASSIC_BUTTON_UP); break;
+        case EXP_NUNCHUK: down |= (wiiButtonsDown & WPAD_BUTTON_UP); break;
+        default:          down |= (wiiButtonsDown & WPAD_BUTTON_RIGHT);
+    };
 #endif
+
+    return down;
 }
 
 bool wii_input::NudgeUpUp()
 {
+    bool up = (gcButtonsUp & PAD_BUTTON_UP);
+
 #ifdef HW_RVL
-    return (wiiButtonsUp & WPAD_BUTTON_UP) || (gcButtonsUp & PAD_BUTTON_UP);
-#else
-    return (gcButtonsUp & PAD_BUTTON_UP);
+    switch (wiiExpansion.type)
+    {
+        case EXP_CLASSIC: up |= (wiiButtonsUp & WPAD_CLASSIC_BUTTON_UP); break;
+        case EXP_NUNCHUK: up |= (wiiButtonsUp & WPAD_BUTTON_UP); break;
+        default:          up |= (wiiButtonsUp & WPAD_BUTTON_RIGHT);
+    };
 #endif
+
+    return up;
 }
 
 bool wii_input::SkipError()
 {
+    bool down = (gcButtonsDown & PAD_BUTTON_A);
+
 #ifdef HW_RVL
-    return (wiiButtonsDown & WPAD_BUTTON_A) || (gcButtonsDown & PAD_BUTTON_A);
-#else
-    return (gcButtonsDown & PAD_BUTTON_A);
+    switch (wiiExpansion.type)
+    {
+        case EXP_CLASSIC: down |= (wiiButtonsDown & WPAD_CLASSIC_BUTTON_A); break;
+        case EXP_NUNCHUK: down |= (wiiButtonsDown & WPAD_BUTTON_A); break;
+        default:          down |= (wiiButtonsDown & WPAD_BUTTON_2);
+    };
 #endif
+
+    return down;
 }

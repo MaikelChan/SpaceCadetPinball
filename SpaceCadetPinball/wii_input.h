@@ -36,6 +36,7 @@ private:
     static uint32_t gcButtonsDown;
     static uint32_t gcButtonsUp;
 #ifdef HW_RVL
+    static expansion_t wiiExpansion;
     static uint32_t wiiButtonsDown;
     static uint32_t wiiButtonsUp;
 #endif
