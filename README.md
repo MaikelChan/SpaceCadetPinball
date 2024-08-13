@@ -19,7 +19,7 @@ I also made the required changes to make the original game's binary assets work 
 The main requirement is to have [devkitPro](https://devkitpro.org).
 
 Follow the instructions to install devkitPro here: https://devkitpro.org/wiki/Getting_Started
-You will also need the Wii development package, and also the libraries wii-sdl and wii-sdl_mixer.
+You will also need the Wii development package, and also the libraries wii-sdl, wii-sdl_mixer and wii-opengx.
 
 If you use Windows or Ubuntu, here are more detailed instructions.
 
@@ -41,10 +41,11 @@ Even though devkitPro offers a Windows installer, I've had some issues setting i
 7. Install the Wii development tools with `sudo dkp-pacman -S wii-dev`.
 8. Install SDL with `sudo dkp-pacman -S wii-sdl`.
 9. Install SDL_mixer with `sudo dkp-pacman -S wii-sdl_mixer`.
-10. Set the DEVKITPRO environment variables so the system knows where the compilers and libraries are installed with these commands:
+10. Install OpenGX with `sudo dkp-pacman -S wii-opengx`.
+11. Set the DEVKITPRO environment variables so the system knows where the compilers and libraries are installed with these commands:
     - `export DEVKITPRO=/opt/devkitpro`.
     - `export DEVKITPPC=/opt/devkitpro/devkitPPC`.
-11. Build the project with the command `make -j`.
+12. Build the project with the command `make -j`.
 
 After a successful build, you will get a file called `SpaceCadetPinball.dol`, which is the main executable.
 
@@ -79,9 +80,29 @@ After a successful build, you will get a file called `SpaceCadetPinball.dol`, wh
 
 ### Wii Remote
 ```
+2                    :  Launch the ball
+A                    :  Move the left paddle
+1                    :  Move the right paddle
+DPAD Left, Right, Up :  Bump table
+-                    :  Start a new game
++                    :  Pause
+```
+
+### Nunchuk
+```
 A                    :  Launch the ball
 Z                    :  Move the left paddle
 B                    :  Move the right paddle
+DPAD Left, Right, Up :  Bump table
+-                    :  Start a new game
++                    :  Pause
+```
+
+### Classic Controller
+```
+A                    :  Launch the ball
+L/ZL                 :  Move the left paddle
+R/ZR                 :  Move the right paddle
 DPAD Left, Right, Up :  Bump table
 -                    :  Start a new game
 +                    :  Pause
